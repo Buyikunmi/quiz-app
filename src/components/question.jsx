@@ -3,6 +3,8 @@ import _ from "lodash";
 
 const Question = ({
   data: { id, question, incorrect_answers, correct_answer },
+  selected_answer,
+  selectAnswer,
 }) => {
   return (
     <div>
@@ -14,7 +16,13 @@ const Question = ({
       <div>
         {_.shuffle([...incorrect_answers, correct_answer]).map((answer) => (
           <li key={id + Math.random()} className="list-group-item">
-            <input type="radio" name="answer" id={id + Math.random()} />
+            <input
+              onClick={selectAnswer}
+              type="radio"
+              name="answer"
+              id={id + Math.random()}
+              checked={answer === selected_answer}
+            />
             <label htmlFor={id}>{answer}</label>
           </li>
         ))}

@@ -14,7 +14,7 @@ class Quiz extends Component {
       correct_answer: "Richard Branson",
       incorrect_answers: ["Alan Sugar", "Donald Trump", "Bill Gates"],
     },
-
+    selectedAnswer: "",
     questionList: [
       {
         id: 1,
@@ -64,7 +64,9 @@ class Quiz extends Component {
     const questionList = [...this.state.questionList];
     const index = questionList.findIndex((data) => data.id === question.id);
     const newQuestion =
-      buttonType === "prev" ? questionList[index - 1] : questionList[index + 1];
+      buttonType === "Previous"
+        ? questionList[index - 1]
+        : questionList[index + 1];
 
     this.setState({ currentQuestion: newQuestion });
   };
@@ -73,14 +75,22 @@ class Quiz extends Component {
     const { questionList, currentQuestion } = this.state;
 
     return (
-      <div className="border shadow-sm border-warning rounded container mt-5">
+      <div className="border shadow-sm border-success rounded container mt-5">
         <div className="m-4">
           <div id="questions">
             <Question data={currentQuestion} />
           </div>
           <div className="clearfix mt-2">
-            <Button buttonType="Previous" />
-            <Button buttonType="Next" />
+            {this.buttons.map((buttonType) => (
+              <Button
+                currentQuestion={currentQuestion}
+                totalCount={questionList.length}
+                buttonType={buttonType}
+                changeQuestion={(data, btnType) =>
+                  this.changeQuestion(currentQuestion, buttonType)
+                }
+              />
+            ))}
           </div>
         </div>
       </div>

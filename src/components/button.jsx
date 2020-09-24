@@ -6,15 +6,16 @@ const Button = ({
   currentQuestion: data,
   totalCount,
 }) => {
-  const buttonClass = `btn btn-info float-${
-    buttonType === "Previous" ? "left" : "right"
-  }`;
+  console.log(totalCount);
+  const buttonClass = `btn ${
+    (data.id === totalCount && buttonType === "Next") ||
+    (data.id === 1 && buttonType === "Previous")
+      ? "invisible"
+      : ""
+  } btn-success float-${buttonType === "Previous" ? "left" : "right"}`;
   return (
     <React.Fragment>
-      <button
-        onClick={(data, buttonType) => changeQuestion(data, buttonType)}
-        className={buttonClass}
-      >
+      <button onClick={changeQuestion} className={buttonClass}>
         {buttonType === "Previous" && <i className="fa fa-arrow-left"></i>}{" "}
         {buttonType}{" "}
         {buttonType === "Next" && <i className="fa fa-arrow-right"></i>}
