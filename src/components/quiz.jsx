@@ -1,64 +1,45 @@
 import React, { Component } from "react";
+import _ from "lodash";
 
-import Question from "./question";
-import Button from "./button";
+import Exam from "./exam";
+import { getQuestions } from "./../services/quizService";
 
 class Quiz extends Component {
   state = {
-    currentQuestion: {
-      id: 1,
-      category: "General Knowledge",
-      type: "multiple",
-      question:
-        "Virgin Trains, Virgin Atlantic and Virgin Racing, are all companies owned by which famous entrepreneur?   ",
-      correct_answer: "Richard Branson",
-      incorrect_answers: ["Alan Sugar", "Donald Trump", "Bill Gates"],
-    },
+    options: [],
     selectedAnswer: "",
-    questionList: [
-      {
-        id: 1,
-        category: "General Knowledge",
-        type: "multiple",
-        question:
-          "Virgin Trains, Virgin Atlantic and Virgin Racing, are all companies owned by which famous entrepreneur?   ",
-        correct_answer: "Richard Branson",
-        incorrect_answers: ["Alan Sugar", "Donald Trump", "Bill Gates"],
-      },
-      {
-        id: 2,
-        category: "General Knowledge",
-        type: "multiple",
-        question:
-          "Which company did Valve cooperate with in the creation of the Vive?",
-        correct_answer: "HTC",
-        incorrect_answers: ["Oculus", "Google", "Razer"],
-      },
-      {
-        id: 3,
-        category: "General Knowledge",
-        type: "multiple",
-        question:
-          "What was the name of the WWF professional wrestling tag team made up of the wrestlers Ax and Smash?",
-        correct_answer: "Demolition",
-        incorrect_answers: [
-          "The Dream Team",
-          "The Bushwhackers",
-          "The British Bulldogs",
-        ],
-      },
-      {
-        id: 4,
-        category: "General Knowledge",
-        type: "multiple",
-        question:
-          "In the video-game franchise Kingdom Hearts, the main protagonist, carries a weapon with what shape?",
-        correct_answer: "Key",
-        incorrect_answers: ["Sword", "Pen", "Cellphone"],
-      },
-    ],
+    questionList: getQuestions(),
   };
-  buttons = ["Previous", "Next"];
+  componentWillMount() {
+    const currentQuestion = this.state.questionList[0];
+    const options = this.state.questionList.map((question, index) => {
+      const { incorrect_answers, correct_answer } = question;
+      return _.shuffle([...incorrect_answers, correct_answer]);
+    });
+    const answers = new Array(this.state.questionList.length);
+    const result = 0;
+    this.setState({ currentQuestion, options, answers, result });
+  }
+
+  submit = () => {
+    const { answers, questionList } = this.state;
+    const result = answers
+      .map((selectedAnswer, index) => {
+        return questionList[index].correct_answer === selectedAnswer;
+      })
+      .filter((answer) => !!answer).length;
+    const showResult = true;
+    this.setState({ result, showResult });
+  };
+
+  selectAnswer = (answer, questionIndex) => {
+    const answers = [...this.state.answers].map((e, i) => {
+      if (questionIndex === i) return answer;
+      return e || false;
+    });
+    // console.log(answers);
+    this.setState({ answers });
+  };
 
   changeQuestion = (question, buttonType) => {
     const questionList = [...this.state.questionList];
@@ -72,44 +53,70 @@ class Quiz extends Component {
   };
 
   render() {
-    const { questionList, currentQuestion } = this.state;
+    const {
+      questionList,
+      currentQuestion,
+      options,
+      answers,
+      result,
+      showResult,
+    } = this.state;
 
     return (
-      <div className="border shadow-sm border-success rounded container mt-5">
+      <div className=" border shadow-sm border-success rounded container mt-5">
         <div className="m-4">
-          <div id="questions">
-            <Question data={currentQuestion} />
-          </div>
-          <div className="clearfix mt-2">
-            {this.buttons.map((buttonType) => (
-              <Button
-                currentQuestion={currentQuestion}
-                totalCount={questionList.length}
-                buttonType={buttonType}
-                changeQuestion={(data, btnType) =>
-                  this.changeQuestion(currentQuestion, buttonType)
-                }
-              />
-            ))}
-          </div>
+          <Exam
+            submit={this.submit}
+            answers={answers}
+            selectAnswer={this.selectAnswer}
+            currentQuestion={currentQuestion}
+            options={options}
+            questionList={questionList}
+            totalCount={questionList.length}
+            changeQuestion={(data, btnType) =>
+              this.changeQuestion(data, btnType)
+            }
+          />
+          {!!showResult && (
+            <div className="container my-50 shadow-sm">
+              <h3 className="lead">
+                You Scored {result} out of {questionList.length}
+              </h3>
+            </div>
+          )}{" "}
         </div>
       </div>
     );
   }
+
+  formatTimer = (timer) => {
+    return `${Math.floor(timer / 60)}:${timer % 60}`;
+  };
 }
 
 export default Quiz;
 
-{
-  /* {this.buttons.map((buttonType) => (
-              <Button
-                key={buttonType}
-                buttonType={buttonType}
-                currentQuestion={currentQuestion}
-                totalCount={questionList.length}
-                changeQuestion={() =>
-                  this.changeQuestion(currentQuestion, buttonType)
-                }
-              />
-            ))} */
-}
+/*<Fragment>
+<div id="questions">
+  {answers.filter((e) => !!e).length >= 3 && (
+    <button onClick={this.submit} className="btn btn-danger">
+      Submit
+    </button>
+  )}
+
+  <Question
+    selectAnswer={this.selectAnswer}
+    answerList={answers}
+    data={currentQuestion}
+    options={options[currentQuestion.id - 1]}
+  />
+</div>
+
+<ButtonGroup
+  currentQuestion={currentQuestion}
+  totalCount={questionList.length}
+  changeQuestion={(data, btnType) =>
+    this.changeQuestion(data, btnType)
+  }
+/>
+</Fragment>*/

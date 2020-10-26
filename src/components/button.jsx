@@ -6,7 +6,6 @@ const Button = ({
   currentQuestion: data,
   totalCount,
 }) => {
-  console.log(totalCount);
   const buttonClass = `btn ${
     (data.id === totalCount && buttonType === "Next") ||
     (data.id === 1 && buttonType === "Previous")
